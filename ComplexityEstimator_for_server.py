@@ -34,6 +34,7 @@ class ImageProcessor():
        
 class ComplexityEstimator():
     def __init__(self):
+        self.batch_size = 30 
         self.i_range, self.j_range = 9,9
         self.gama = 14
         
@@ -132,11 +133,12 @@ class ComplexityEstimator():
             url = row.image_url
             imm = image_processor.load_img(url)
             print(np.array(imm).shape)
-            try:
-                img = image_processor.rgb2hsv(imm)
-                ad_df.loc[i, "complexity"] = self.calculate_complexity_fast(img)
-            except:
-                ad_df.loc[i, "complexity"] = 0
+            img = image_processor.rgb2hsv(imm)
+            ad_df.loc[i, "complexity"] = self.calculate_complexity_fast(img)
+            print(ad_df.loc[i, "complexity"])
+            # except:
+            #     print("error")
+            #     ad_df.loc[i, "complexity"] = 0
         return(ad_df)
             
 
