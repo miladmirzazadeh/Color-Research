@@ -5,7 +5,6 @@ import os
 import requests
 from PIL import Image
 from io import BytesIO
-import colorsys 
 import skimage
 import os.path
 
