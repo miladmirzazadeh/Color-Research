@@ -134,12 +134,13 @@ class ComplexityEstimator():
             url = row.image_url
             imm = image_processor.load_img(url)
             print(np.array(imm).shape)
-            img = image_processor.rgb2hsv(imm)
-            ad_df.loc[i, "complexity"] = self.calculate_complexity_fast(img)
-            print(ad_df.loc[i, "complexity"])
-            # except:
-            #     print("error")
-            #     ad_df.loc[i, "complexity"] = 0
+            try:
+                img = image_processor.rgb2hsv(imm)
+                ad_df.loc[i, "complexity"] = self.calculate_complexity_fast(img)
+                print(ad_df.loc[i, "complexity"])
+            except:
+                print("error")
+                ad_df.loc[i, "complexity"] = 0
         return(ad_df)
             
 
