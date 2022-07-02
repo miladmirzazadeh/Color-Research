@@ -139,6 +139,8 @@ class ComplexityEstimator():
         all_ad_df["complexity"] = np.zeros(len(all_ad_df))
         if os.path.exists("labeled_ads.csv"):
             saved_df = pd.read_csv("labeled_ads.csv")
+        else: 
+            saved_df = pd.DataFrame([], columns=df.columns)
         i = len(saved_df)
         while i+100 <len(all_ad_df):
             try:
