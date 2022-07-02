@@ -5,6 +5,7 @@ import os
 import requests
 from PIL import Image
 from io import BytesIO
+from skimage.color import rgb2hsv
 import skimage
 import os.path
 
@@ -29,7 +30,7 @@ class ImageProcessor():
         return(rgb_img)
     
     def rgb2hsv(self, img): # reference : https://stackoverflow.com/questions/2659312/how-do-i-convert-a-numpy-array-to-and-display-an-image
-        return(skimage.color.rgb2hsv(np.array(img)))
+        return(rgb2hsv(np.array(img)))
     
        
 class ComplexityEstimator():
