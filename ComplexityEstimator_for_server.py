@@ -130,12 +130,12 @@ class ComplexityEstimator():
         image_processor = ImageProcessor()
         for i, row in ad_df.iterrows():
             url = row.image_url
-            
+            imm = image_processor.load_img(url)
+            print(np.array(imm).shape)
             try:
-                img = image_processor.rgb2hsv(image_processor.load_img(url))
+                img = image_processor.rgb2hsv(imm)
                 ad_df.loc[i, "complexity"] = self.calculate_complexity_fast(img)
             except:
-                print("error")
                 ad_df.loc[i, "complexity"] = 0
         return(ad_df)
             
@@ -149,7 +149,6 @@ class ComplexityEstimator():
             saved_df = pd.DataFrame([], columns=all_ad_df.columns)
         i = len(saved_df)
         while i+100 <len(all_ad_df):
-            print(i)
             df = self.calculate_batch_complexities(all_ad_df.iloc[i:i+100, :])
             if os.path.exists("labeled_ads.csv"):
                 saved_df = pd.read_csv("labeled_ads.csv", index_col=0)
