@@ -132,6 +132,7 @@ class ComplexityEstimator():
             url = row.image_url
             img = image_processor.rgb2hsv(image_processor.load_img(url))
             ad_df.loc[i, "complexity"] = self.calculate_complexity_fast(img)
+        return(ad_df)
             
 
 
@@ -140,7 +141,7 @@ class ComplexityEstimator():
         if os.path.exists("labeled_ads.csv"):
             saved_df = pd.read_csv("labeled_ads.csv")
         else: 
-            saved_df = pd.DataFrame([], columns=df.columns)
+            saved_df = pd.DataFrame([], columns=all_ad_df.columns)
         i = len(saved_df)
         while i+100 <len(all_ad_df):
             try:
@@ -148,7 +149,7 @@ class ComplexityEstimator():
                 if os.path.exists("labeled_ads.csv"):
                     saved_df = pd.read_csv("labeled_ads.csv", index_col=0)
                 else: 
-                    saved_df = pd.DataFrame([], columns=df.columns)
+                    saved_df = pd.DataFrame([], columns=all_ad_df.columns)
                 final_df = saved_df.append(df)
                 final_df.to_csv("labeled_ads.csv")
             except:
@@ -162,7 +163,7 @@ class ComplexityEstimator():
                 if os.path.exists("labeled_ads.csv"):
                     saved_df = pd.read_csv("labeled_ads.csv", index_col=0)
                 else: 
-                    saved_df = pd.DataFrame([], columns=df.columns)
+                    saved_df = pd.DataFrame([], columns=all_ad_df.columns)
                 final_df = saved_df.append(df)
                 final_df.to_csv("labeled_ads.csv")
             except:
