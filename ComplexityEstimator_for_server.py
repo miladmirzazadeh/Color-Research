@@ -2,7 +2,37 @@ import pandas as pd
 import numpy as np
 import cv2 
 import os
+import requests
+from PIL import Image
+from io import BytesIO
+import colorsys 
+import skimage
+import os.path
 
+class ImageProcessor():
+    def __init__(self):
+        pass
+
+    def detect_colors(self,image_url,n_clusters=7, extract_overall_color=0):
+        api_key = 'acc_e8757fe81b74a32'
+        api_secret = 'c7c4aeb4a98bd40704fe023904297ad5'
+        response = requests.get(
+            'https://api.imagga.com/v2/colors?image_url=%s&separated_count=%s&extract_overall_colors=%s&overall_count=%s' % (image_url, n_clusters, extract_overall_color, n_clusters),
+        auth=(api_key, api_secret))
+        a = response.json()
+        if(a["status"]["type"] == "success"):
+            return(a)
+
+    def load_img(self, url):
+        response = requests.get(url)
+        rgb_img = Image.open(BytesIO(response.content))
+        rgb_img.thumbnail((300,300)) #resize pictures to selected maximum values for length and width
+        return(rgb_img)
+    
+    def rgb2hsv(self, img): # reference : https://stackoverflow.com/questions/2659312/how-do-i-convert-a-numpy-array-to-and-display-an-image
+        return(skimage.color.rgb2hsv(np.array(img)))
+    
+       
 class ComplexityEstimator():
     def __init__(self):
         self.i_range, self.j_range = 9,9
@@ -96,7 +126,61 @@ class ComplexityEstimator():
             weight = np.exp(-((a-mean)**2)/(2*(sigma)))
             weighted_array.append(weight*a)
         return(sum(weighted_array))
-print("hello")
+
+    def calculate_batch_complexities(self, ad_df):
+        image_processor = ImageProcessor()
+        for i, row in ad_df.iterrows():
+            url = row.image_url
+            img = image_processor.rgb2hsv(image_processor.load_img(url))
+            ad_df.loc[i, "complexity"] = self.calculate_complexity_fast(img)
+            
+
+
+    def calculate_all_complexities(self, all_ad_df):
+        all_ad_df["complexity"] = np.zeros(len(all_ad_df))
+        if os.path.exists("labeled_ads.csv"):
+            saved_df = pd.read_csv("labeled_ads.csv")
+        i = len(saved_df)
+        while i+100 <len(all_ad_df):
+            try:
+                df = self.calculate_batch_complexities(all_ad_df.iloc[i:i+100, :])
+                if os.path.exists("labeled_ads.csv"):
+                    saved_df = pd.read_csv("labeled_ads.csv", index_col=0)
+                else: 
+                    saved_df = pd.DataFrame([], columns=df.columns)
+                final_df = saved_df.append(df)
+                final_df.to_csv("labeled_ads.csv")
+            except:
+                pass
+
+            i+=100
+
+        if i < len(all_ad_df):
+            try:
+                df = self.calculate_batch_complexities(all_ad_df.iloc[i:, :])
+                if os.path.exists("labeled_ads.csv"):
+                    saved_df = pd.read_csv("labeled_ads.csv", index_col=0)
+                else: 
+                    saved_df = pd.DataFrame([], columns=df.columns)
+                final_df = saved_df.append(df)
+                final_df.to_csv("labeled_ads.csv")
+            except:
+                pass
+
+
+        
+
+def main():
+    ad_df = pd.read_csv("preprocessed_ad_ctr_df.csv", index_col=0)
+    ce = ComplexityEstimator()
+    ce.calculate_all_complexities(ad_df)
+
+
+if __name__ == "__main__":
+    main()
+
+
+ 
             
         
     
